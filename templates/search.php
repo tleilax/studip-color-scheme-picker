@@ -1,11 +1,11 @@
 <form action="<?= $action_url ?>" method="get">
     <fieldset>
-        <legend><?= _('Ähnliche Farbe suchen') ?></legend>
+        <legend><?= _('Ã„hnliche Farbe suchen') ?></legend>
         
         <section>
             <label for="color"><?= _('Farbwert') ?></label>
             <input type="text" name="color" maxlength="7" placeholder="#rrggbb"
-                   autofocus pattern="#?[a-f0-9]{3}([a-f0-9]{3})?"
+                   autofocus pattern="#?[a-fA-F0-9]{3}([a-fA-F0-9]{3})?"
                    value="<?= @$color ?>">
         </section>
     </fieldset>
@@ -18,7 +18,7 @@
 <? if (isset($distances) && isset($color)): ?>
 <table class="default">
     <caption>
-        <?= sprintf(_('Ähnliche gefundene Farben zu %s'), $color) ?>
+        <?= sprintf(_('Ã„hnliche gefundene Farben zu %s'), $color) ?>
     </caption>
     <colgroup>
         <col width="20px">
