@@ -1,6 +1,6 @@
 <form action="<?= $action_url ?>" method="get">
     <fieldset>
-        <legend><?= _('Ã„hnliche Farbe suchen') ?></legend>
+        <legend><?= _('Ähnliche Farbe suchen') ?></legend>
         
         <section>
             <label for="color"><?= _('Farbwert') ?></label>
@@ -18,7 +18,7 @@
 <? if (isset($distances) && isset($color)): ?>
 <table class="default">
     <caption>
-        <?= sprintf(_('Ã„hnliche gefundene Farben zu %s'), $color) ?>
+        <?= sprintf(_('Ähnliche gefundene Farben zu %s'), $color) ?>
     </caption>
     <colgroup>
         <col width="20px">
