@@ -19,7 +19,7 @@ class Colorschemepicker extends StudIPPlugin implements SystemPlugin
 
         $navigation = new Navigation(_('Farbklima'));
         $navigation->setURL(PluginEngine::getLink($this, array(), 'search'));
-        
+
         $navigation->addSubnavigation('search', new Navigation('Suche', PluginEngine::getLink($this, array(), 'search')));
         $navigation->addSubnavigation('list', new Navigation('Liste', PluginEngine::getLink($this, array(), 'list')));
 
@@ -156,11 +156,11 @@ class Colorschemepicker extends StudIPPlugin implements SystemPlugin
         if ($this->colors !== null) {
             return $this->colors;
         }
-        
-        $less_file = $GLOBALS['ABSOLUTE_PATH_STUDIP'] . 'assets/stylesheets/mixins/colors.less';
-        
+
+        $less_file = "{$GLOBALS['STUDIP_BASE_PATH']}/resources/assets/stylesheets/mixins/colors.less";
+
         if (!file_exists($less_file)) {
-            throw new Exception('Stud.IP mixin "colors.less" not found in expected location');
+            throw new Exception('Stud.IP mixin "colors.less" not found in expected location ' . $less_file);
         }
 
         $this->colors = array();
@@ -169,7 +169,7 @@ class Colorschemepicker extends StudIPPlugin implements SystemPlugin
         while (!feof($fp)) {
             $line = fgets($fp);
             $line = trim($line);
-            
+
             // @brand-color-darker: #1e3e70;
             if (!preg_match('/(@\S+)\s*:.*?(#[a-f0-9]{3}(?:[a-f0-9]{3})?);?$/', $line, $matches)) {
                 continue;
@@ -177,7 +177,7 @@ class Colorschemepicker extends StudIPPlugin implements SystemPlugin
 
             $index = $matches[1];
             $color = $matches[2];
-            
+
             $this->colors[$index] = $color;
         }
 
