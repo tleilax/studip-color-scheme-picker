@@ -1,0 +1,29 @@
+[v-cloak] {
+    display: none;
+}
+
+.color-display {
+    height: 32px;
+    line-height: 2;
+    text-align: center;
+    text-shadow: 0 0 5px #ffffff, 0 0 10px #888;
+    vertical-align: middle;
+    width: 100%;
+}
+
+#color-list {
+    input[type="text"] {
+        background: transparent;
+        border: 0;
+        border-radius: 2px;
+        cursor: copy;
+        width: 100%;
+    }
+}
+
+@keyframes copied-value-hint {
+    50%  { background-color: var(--green); }
+}
+.copied-value {
+    animation: copied-value-hint 0.5s;
+}
