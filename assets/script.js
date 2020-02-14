@@ -110,7 +110,7 @@
                     });
 
                     return distances.reduce((colors, item) => {
-                        const color = this.colors[item.index];
+                        const color = Object.assign({}, this.colors[item.index]);
                         color.distance = parseFloat(item.distance).toFixed(2);
                         colors.push(color);
                         return colors;
