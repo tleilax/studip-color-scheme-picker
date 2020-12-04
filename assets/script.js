@@ -72,7 +72,7 @@
         }, []);
 
         // Create vue app
-        const app = new Vue({
+        const appConfig = {
             el: document.getElementById('color-list'),
             data: {
                 colors: colors,
@@ -117,7 +117,15 @@
                     }, []);
                 }
             }
-        });
+        };
+
+        if (window.Vue) {
+            const app = new Vue(appConfig);
+        } else if (window.STUDIP.Vue) {
+            STUDIP.Vue.load().then(({createApp}) => {
+                createApp(appConfig);
+            })
+        }
 
         // Attach search input from sidebar
         const search = document.querySelector('.sidebar input[name="search-color"]');
