@@ -119,30 +119,35 @@
             }
         };
 
+        var promise;
         if (window.Vue) {
-            const app = new Vue(appConfig);
+            promise = Promise.resolve(new Vue(appConfig));
         } else if (window.STUDIP.Vue) {
-            STUDIP.Vue.load().then(({createApp}) => {
-                createApp(appConfig);
+            promise = STUDIP.Vue.load().then(({createApp}) => {
+                return createApp(appConfig);
             })
+        } else {
+            promise = Promise.reject('No search possible due to missing vue');
         }
 
-        // Attach search input from sidebar
-        const search = document.querySelector('.sidebar input[name="search-color"]');
-        search.addEventListener('keyup', event => {
-            if (search.checkValidity()) {
-                const color = search.value.toLowerCase();
-                if (color.length > 0 && color[0] === '#') {
-                    color = color.slice(1);
+        promise.then(app => {
+            // Attach search input from sidebar
+            const search = document.querySelector('.sidebar input[name="search-color"]');
+            search.addEventListener('keyup', event => {
+                if (search.checkValidity()) {
+                    let color = search.value.toLowerCase();
+                    if (color.length > 0 && color[0] === '#') {
+                        color = color.slice(1);
+                    }
+                    app.searchColor = color;
+                } else {
+                    app.searchColor = false;
                 }
-                app.searchColor = color;
-            } else {
-                app.searchColor = false;
-            }
+            });
+            search.closest('form').addEventListener(
+                'submit',
+                event => event.preventDefault()
+            );
         });
-        search.closest('form').addEventListener(
-            'submit',
-            event => event.preventDefault()
-        );
     });
 }());
