@@ -20,7 +20,7 @@ class Colorschemepicker extends StudIPPlugin implements SystemPlugin
 
         if (Navigation::hasItem('/tools')) {
             Navigation::addItem('/tools/colorschemepicker', $navigation);
-        } else {
+        } elseif (Navigation::hasItem('/profile/settings')) {
             Navigation::addItem('/profile/settings/colorschemepicker', $navigation);
         }
     }
