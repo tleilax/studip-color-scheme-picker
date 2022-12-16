@@ -1,9 +1,62 @@
 (function () {
+    class Color {
+        static fromHexValue(hex, name) {
+            if (hex[0] === '#') {
+                hex = hex.slice(1);
+            }
+
+            const rgb = {
+                r: parseInt(hex.slice(0, 2), 16),
+                g: parseInt(hex.slice(2, 4), 16),
+                b: parseInt(hex.slice(4, 6), 16),
+            }
+
+            return new Color(rgb.r, rgb.g, rgb.b, name);
+        }
+
+        constructor(r, g, b, name) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+
+            this.name = name;
+        }
+
+        get mono () {
+            return 0.2125 * this.r + 0.7154 * this.g + 0.0721 * this.b;
+        }
+
+        get hex() {
+            const chunks = [
+                ('0' + this.r.toString(16)).slice(-2),
+                ('0' + this.g.toString(16)).slice(-2),
+                ('0' + this.b.toString(16)).slice(-2),
+            ]
+            return `#${chunks.join('')}`.toUpperCase();
+        }
+
+        distance(other_color) {
+            const distance = {
+                r: Math.abs(this.r - other_color.r),
+                g: Math.abs(this.g - other_color.g),
+                b: Math.abs(this.b - other_color.b),
+                mono: Math.abs(this.mono - other_color.mono),
+            };
+
+            return Math.sqrt(
+                Math.pow(distance.r, 2) +
+                Math.pow(distance.g, 2) +
+                Math.pow(distance.b, 2) +
+                Math.pow(distance.mono, 2)
+            );
+        }
+    }
+
     /**
      * Convert hex color to rgb (with optional monochrome value)
-     * @param  String  hex         Hex color
-     * @param  Boolean includeMono Include monochrome value
-     * @return Object with r, g, b and monochrome value
+     * @param   hex         Hex color
+     * @param  includeMono Include monochrome value
+     * @return Object
      */
     function hexToRgb (hex, includeMono = true) {
         if (hex[0] === '#') {
@@ -22,8 +75,8 @@
 
     /**
      * Calculates the distance between to colors
-     * @param  Object color0 RGB color
-     * @param  Object color1 RGB color
+     * @param  color0 RGB color
+     * @param  color1 RGB color
      * @return Number
      */
     function colorDistance (color0, color1) {
@@ -43,32 +96,33 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        const style = getComputedStyle(document.body);
+
+        let presentColors = [];
+
         // Get all css color variables
         // (see https://stackoverflow.com/a/54851636/982902)
         const colors = Array.from(document.styleSheets).filter(sheet => {
             return sheet.href === null || sheet.href.startsWith(window.location.origin);
         }).reduce((allVars, sheet) => {
-            const style = getComputedStyle(document.body);
-            return allVars.concat(
-                ...Array.from(sheet.cssRules).reduce((vars, rule) => {
-                    if (rule.selectorText !== ':root') {
-                        return vars;
+            const rules = Array.from(sheet.cssRules).filter(rule => rule.selectorText === ':root');
+            const colors = rules.reduce((vars, rule) => {
+                const styles = Array.from(rule.style).filter(name => name.startsWith('--'));
+                const colors = styles.reduce((defs, name) => {
+                    name = name.trim();
+                    const color = style.getPropertyValue(name).trim();
+                    if (
+                        color.match(/^#[0-9a-f]{6}$/i)
+                        && !presentColors.includes(name)
+                    ) {
+                        defs.push(Color.fromHexValue(color, name.slice(2)));
+                        presentColors.push(name);
                     }
-                    return vars.concat(...Array.from(rule.style).filter(name => {
-                        return name.startsWith('--');
-                    }).reduce((defs, name) => {
-                        const color = style.getPropertyValue(name);
-                        if (color.match(/^#[0-9a-f]{6}$/)) {
-                            defs.push({
-                                name: name.slice(2),
-                                color: color,
-                                rgb: hexToRgb(color),
-                            });
-                        }
-                        return defs;
-                    }, []));
+                    return defs;
                 }, [])
-            );
+                return vars.concat(...colors);
+            }, [])
+            return allVars.concat(...colors);
         }, []);
 
         // Create vue app
@@ -79,7 +133,7 @@
                 searchColor: false
             },
             methods: {
-                copy (event) {
+                copy(event) {
                     const dummy = document.createElement('textarea');
                     dummy.value = event.target.value;
                     document.body.appendChild(dummy);
@@ -94,14 +148,13 @@
                 }
             },
             computed: {
-                sortedColors () {
+                sortedColors() {
                     if (!this.searchColor) {
                         return this.colors;
                     }
-                    const rgb = hexToRgb(this.searchColor);
                     const distances = this.colors.map((color, index) => {
                         return {
-                            distance: colorDistance(color.rgb, rgb),
+                            distance: color.distance(this.searchColor),
                             index: index
                         };
                     });
@@ -110,9 +163,7 @@
                     });
 
                     return distances.reduce((colors, item) => {
-                        const color = Object.assign({}, this.colors[item.index]);
-                        color.distance = parseFloat(item.distance).toFixed(2);
-                        colors.push(color);
+                        colors.push(this.colors[item.index]);
                         return colors;
                     }, []);
                 }
@@ -132,14 +183,10 @@
 
         promise.then(app => {
             // Attach search input from sidebar
-            const search = document.querySelector('.sidebar input[name="search-color"]');
+            const search = document.querySelector('.sidebar,#sidebar').querySelector('input[name="search-color"]');
             search.addEventListener('keyup', event => {
                 if (search.checkValidity()) {
-                    let color = search.value.toLowerCase();
-                    if (color.length > 0 && color[0] === '#') {
-                        color = color.slice(1);
-                    }
-                    app.searchColor = color;
+                    app.searchColor = Color.fromHexValue(search.value);
                 } else {
                     app.searchColor = false;
                 }

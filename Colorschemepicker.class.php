@@ -17,8 +17,12 @@ class Colorschemepicker extends StudIPPlugin implements SystemPlugin
 
         $navigation = new Navigation(_('Farbklima'));
         $navigation->setURL(PluginEngine::getURL($this, [], 'index'));
+        $navigation->setImage(Icon::create('group4', Icon::ROLE_NAVIGATION));
+        $navigation->setDescription(_('Alle Farben des Stud.IP Farbklimas'));
 
-        if (Navigation::hasItem('/tools')) {
+        if (Navigation::hasItem('/contents')) {
+            Navigation::addItem('/contents/colorschemepicker', $navigation);
+        } elseif (Navigation::hasItem('/tools')) {
             Navigation::addItem('/tools/colorschemepicker', $navigation);
         } elseif (Navigation::hasItem('/profile/settings')) {
             Navigation::addItem('/profile/settings/colorschemepicker', $navigation);
@@ -39,7 +43,9 @@ class Colorschemepicker extends StudIPPlugin implements SystemPlugin
      */
     public function index_action()
     {
-        if (Navigation::hasItem('/tools/colorschemepicker')) {
+        if (Navigation::hasItem('/contents/colorschemepicker')) {
+            Navigation::activateItem('/contents/colorschemepicker');
+        } elseif (Navigation::hasItem('/tools/colorschemepicker')) {
             Navigation::activateItem('/tools/colorschemepicker');
         } else {
             Navigation::activateItem('/profile/settings/colorschemepicker');

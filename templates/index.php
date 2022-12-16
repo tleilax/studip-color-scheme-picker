@@ -3,13 +3,15 @@
         <?= _('Alle Farben des Stud.IP Farbklimas') ?>
     </caption>
     <colgroup>
-        <col width="25%">
-        <col width="25%">
-        <col width="25%">
-        <col width="25%">
+        <col style="width: 20%">
+        <col style="width: 20%">
+        <col style="width: 20%">
+        <col style="width: 20%">
+        <col style="width: 20%">
     </colgroup>
     <thead>
         <tr>
+            <th><?= _('CSS-Variable') ?></th>
             <th><?= _('SCSS-Index') ?></th>
             <th><?= _('LESS-Index') ?></th>
             <th v-if="searchColor">
@@ -23,23 +25,28 @@
     </thead>
     <tbody>
         <tr v-for="color in sortedColors" :key="color.name">
-            <td>
+            <td :title="`var(--${color.name})`">
+                <input readonly type="text"
+                       :value="`var(--${color.name})`"
+                       @click="copy">
+            </td>
+            <td :title="`$${color.name}`">
                 <input readonly type="text"
                        :value="`$${color.name}`"
                        @click="copy">
             </td>
-            <td>
+            <td :title="`@${color.name}`">
                 <input readonly type="text"
                        :value="`@${color.name}`"
                        @click="copy">
             </td>
-            <td v-if="color.distance">
-                {{ color.distance }}
+            <td v-if="searchColor">
+                {{ color.distance(searchColor).toFixed(2) }}
             </td>
             <td v-else></td>
             <td>
                 <div class="color-display" :style="`background: var(--${color.name})`">
-                    {{ color.color }}
+                    {{ color.hex }}
                 </div>
             </td>
         </tr>
